@@ -21,17 +21,71 @@ def home():
 
 @app.route('/animal/<int:id>')
 def animal_by_id(id):
-    return ''
+    animal = Animal.query.filter(Animal.id == id).first()
+    if not animal:
+        response_body = '<h1>404 animal not found</h1>'
+        response = make_response(response_body, 404)
+        return response
+
+    response_body = f"""
+    <ul>Name: {animal.name}</ul>
+    <ul>Species: {animal.species}</ul>
+    <ul>Zookeeper: {animal.zookeeper.name}</ul>
+    <ul>Enclosure: {animal.enclosure.environment}</ul>
+    """
+    response = make_response(response_body, 200)
+    return response
 
 
 @app.route('/zookeeper/<int:id>')
 def zookeeper_by_id(id):
-    return ''
+    zookeeper = Zookeeper.query.filter(Zookeeper.id == id).first()
+
+    if not zookeeper:
+        response_body = '<h1>404 zookeeper not found</h1>'
+        response = make_response(response_body, 404)
+        return response
+
+    response_body = f"""
+    <ul>Name: {zookeeper.name}</ul>
+    <ul>Birthday: {zookeeper.birthday}</ul> 
+    """
+    animals = zookeeper.animals
+    if not animals:
+        response_body += f"<ul>Has no animals at this time</ul>"
+    else:
+        for animal in animals:
+            response_body += f"<ul>Animal: {animal.name}</ul>"
+
+    response = make_response(response_body, 200)
+    return response
 
 
 @app.route('/enclosure/<int:id>')
 def enclosure_by_id(id):
-    return ''
+    enclosure = Enclosure.query.filter(Enclosure.id == id).first()
+
+    if not enclosure:
+        response_body = f"<h2>404 enclosure doesn't exist</h2>"
+        response = make_response(response_body, 404)
+        return response
+
+    response_body = f"<ul>Environment: {enclosure.environment}</ul>"
+
+    if enclosure.open_to_visitors == False:
+        response_body += f"<ul>Open to Visitors: No</ul>"
+    else:
+        response_body += f"<ul>Open to Visitors: Yes</ul>"
+
+    animals = enclosure.animals
+    if not animals:
+        response_body += f"<ul>Enclosure has no animals at this time</ul>"
+    else:
+        for animal in animals:
+            response_body += f"<ul>Animal: {animal.name}</ul>"
+
+    response = make_response(response_body, 200)
+    return response
 
 
 if __name__ == '__main__':
